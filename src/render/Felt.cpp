@@ -28,13 +28,8 @@ static void spot(const Craps &g, const Zone &z, bool beginner) {
     bool closed = !g.onTable(z.bet);
     switch (z.bet) {
         case PLACE4: case PLACE5: case PLACE6: case PLACE8: case PLACE9: case PLACE10: {
-            static const char *const NUM[6] = {"4", "5", "SIX", "8", "NINE", "10"};
-            uint8_t i = (uint8_t)(z.bet - PLACE4);
-            const char *s = NUM[i];
-            // The 6 and 9 are spelled out on real tables (so nobody reads them
-            // upside down); in a narrow box the words don't fit, so digits.
-            if (!beginner) s = i == 2 ? "6" : (i == 4 ? "9" : s);
-            centred57(cx, y + 2, s, closed ? FELT_DK : GOLD);
+            static const char *const NUM[6] = {"4", "5", "6", "8", "9", "10"};
+            centred57(cx, y + 2, NUM[z.bet - PLACE4], closed ? FELT_DK : GOLD);
             if (closed) gfx_dither(x + 1, y + 1, w - 2, h - 2, FELT_DK, 0);
             break;
         }

@@ -93,8 +93,10 @@ POINT", "THAT ONE STAYS UP!", "TABLE MAX IS $500").
 **The game:**
 - The shooter must bet the PASS LINE or DON'T PASS before the come-out roll.
 - On the come-out, 7 or 11 wins the pass line, and 2, 3 or 12 (craps) loses it.
-- Any other number becomes the **point**. The puck turns over and slides
-  onto that number, lit white.
+- Any other number becomes the **point**. The black OFF puck turns over and
+  slides to that number's box. There it sits as a round white badge showing
+  the number, pinned to the box's top right corner like a notification on an
+  app icon, so the box's own number stays clear.
 - The shooter then rolls until the point comes again (the pass line wins) or a
   7 (**seven out**: the line loses, and a new shooter comes out).
 - Make two points in one hand and the shooter is **hot**: the dice burn.
@@ -172,9 +174,10 @@ chip, the point). SAVE & QUIT, then CONTINUE, puts you back mid-hand.
     fewest pips.
   - The new pips go on as the dice hit the back wall, small, spinning and
     in a shower of sparks.
-- **Flash is the limit.** The release build is 50,012 B of 50,944, which
+- **Flash is the limit.** The release build is 50,076 B of 50,944, which
   leaves both save pages free. To fit:
-  - the chips and the puck are span sprites recoloured by remap tables;
+  - the chips are span sprites recoloured by remap tables, and the pucks are
+    span sprites too (round discs made by `tools/assets.py`);
   - every die orientation comes from one walk of quarter turns stored in a
     24-bit constant;
   - the dice share the game's sine table;

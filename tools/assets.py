@@ -352,6 +352,30 @@ def load_bits(name):
     return [[1 if x < len(r) and r[x] == "#" else 0 for x in range(w)] for r in rows]
 
 
+def disc(R, c, face, ring, shade, shadow):
+    """A disc of radius R round pixel (c, c): its outline in ring, an inner
+    arc of shade toward the bottom right (thickness), and a shadow one pixel
+    down and right."""
+    n = 2 * c + 2
+    def inside(x, y):
+        return (x - c) ** 2 + (y - c) ** 2 <= R * R
+    def edge(x, y):
+        return inside(x, y) and any(not inside(x + dx, y + dy) for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)))
+    img = [[TRANSPARENT] * n for _ in range(n)]
+    for y in range(n):
+        for x in range(n):
+            if inside(x, y):
+                if edge(x, y):
+                    img[y][x] = ring
+                elif shade is not None and (x >= c or y >= c) and edge(x + 1, y + 1):
+                    img[y][x] = shade
+                else:
+                    img[y][x] = face
+            elif inside(x - 1, y - 1):
+                img[y][x] = shadow
+    return img
+
+
 def main():
     ensure_ppot()
     o = Out()
@@ -392,10 +416,19 @@ def main():
 
     # Chips and the puck as span sprites, coloured per use by a remap (the
     # shapes are CHBlackjack's chip, captured; render/Chips.cpp).
-    for f in ["chip_top", "chip_side", "chip_small_top", "chip_small_side", "puck"]:
+    for f in ["chip_top", "chip_side", "chip_small_top", "chip_small_side"]:
         img = load_art(f)
         o.array(f.upper(), pack_span4(img), comment=f"{f} {len(img[0])}x{len(img)}, row spans")
         preview(f, img, bg=3)
+
+    # The pucks: round, with a drop shadow. ON is a white badge for the point
+    # number (11 px: a 5x7 digit fits); OFF is black and a size up, to fit
+    # "OFF" in the 3x5 font.
+    L = LETTER
+    for nm, R, c, face, ring, shade in [("PUCK_ON", 5.5, 5, "w", "k", "s"), ("PUCK_OFF", 6.5, 6, "k", "s", None)]:
+        img = disc(R, c, L[face], L[ring], L[shade] if shade else None, L["k"])
+        o.array(nm, pack_span4(img), comment=f"{nm.lower()} disc r{R}, centre ({c},{c}), row spans")
+        preview(nm.lower(), img, bg=3)
 
     # The "Craps" title lettering (new for this game).
     logo = load_bits("logo")

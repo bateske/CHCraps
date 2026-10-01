@@ -19,7 +19,8 @@ int  chipDenom(int32_t amount);                             // largest chip that
 void stackSmall(int cx, int baseY, int32_t amount, uint8_t maxChips = 3);
 void stack(int cx, int baseY, int32_t amount, uint8_t maxChips);
 
-// The ON/OFF puck: a disc seen at the table's angle, 13x9.
+// The pucks, round: ON a white badge (11 px) showing the point number
+// (number 0: "ON"); OFF black (13 px).
 void puck(int cx, int cy, bool on, uint8_t number = 0);
 
 // A die face, size 5 (pips one pixel) or 7, red with white pips.

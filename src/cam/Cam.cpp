@@ -268,7 +268,7 @@ static void plate() {
     // What this roll is for, top left.
     fillRound(2, 2, pointNum ? 50 : 58, 11, 3, INK);
     roundRect(2, 2, pointNum ? 50 : 58, 11, 3, GOLD);
-    art::puck(10, 6, pointNum != 0, pointNum);
+    art::puck(10, 7, pointNum != 0, pointNum);
     text35(19, 5, pointNum ? "POINT" : "COMING OUT", isHot ? FX_A : (pointNum ? GOLD : WHITE));
     if (pointNum) {
         char s[3] = {(char)('0' + (pointNum >= 10 ? 1 : pointNum)), (char)(pointNum >= 10 ? '0' : 0), 0};

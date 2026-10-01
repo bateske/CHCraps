@@ -59,19 +59,17 @@ void stack(int cx, int baseY, int32_t amount, uint8_t maxChips) {
 }
 
 void puck(int cx, int cy, bool on, uint8_t number) {
-    uint8_t rm[16];
-    for (uint8_t i = 0; i < 16; i++) rm[i] = i;
-    if (on) rm[NAVY] = SILVER; else rm[WHITE] = INK;
-    gfx_sprite4(PUCK, cx - 6, cy - 4, rm);
-    char s[3] = {0};
-    if (on && number) {
-        // A lit number: the point, bold on the white puck.
-        if (number >= 10) { s[0] = '1'; s[1] = (char)('0' + number - 10); } else s[0] = (char)('0' + number);
-        gfx_text(cx - gfx_textWidth(s) / 2, cy - 3, s, INK);
-    } else {
-        const char *t = on ? "ON" : "OFF";
-        text35(cx - text35Width(t) / 2, cy - 2, t, on ? INK : WHITE);
+    if (!on) {
+        gfx_sprite4(PUCK_OFF, cx - 6, cy - 6);
+        text35(cx - 5, cy - 2, "OFF", WHITE);
+        return;
     }
+    gfx_sprite4(PUCK_ON, cx - 5, cy - 5);
+    if (!number) { text35(cx - 3, cy - 2, "ON", INK); return; }
+    // The point in the 5x7 font, centred on its pixels: the digits are five
+    // wide, but the 1 only three, so "10" is set by hand (1, a gap, 0).
+    if (number >= 10) { gfx_char(cx - 5, cy - 3, '1', INK); gfx_char(cx, cy - 3, '0', INK); }
+    else gfx_char(cx - 2, cy - 3, (char)('0' + number), INK);
 }
 
 static const uint16_t PIPS[7] = {0, 0x010, 0x101, 0x111, 0x145, 0x155, 0x16D};

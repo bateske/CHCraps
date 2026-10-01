@@ -412,9 +412,12 @@ static void movingRows(int &lo, int &hi) {
         int x, y; flyPos(f, x, y);
         span(y - 8, y + 6);
     }
-    if (puckT < PUCK_T) span(FELT_Y - 4, TRIM_Y);
+    if (puckT < PUCK_T) span(FELT_Y - 8, TRIM_Y);       // the badge reaches up over the rail
 }
 
+// OFF, the puck lies in the Come (or, on the Beginner table, the field);
+// ON, it sits on the point's box like a notification badge on an app icon:
+// pinned to the top right corner, over the rail, the box's number clear.
 static void puckPos(const Craps &g, uint8_t n, int &x, int &y) {
     if (!n) {
         if (g.opt.table == TABLE_BEGINNER) { x = 120; y = 79; }
@@ -422,8 +425,9 @@ static void puckPos(const Craps &g, uint8_t n, int &x, int &y) {
         return;
     }
     const Zone &z = zones::at(g.opt.table, zones::find(g.opt.table, (uint8_t)(PLACE4 + box(n))));
-    x = z.x + z.w / 2;
-    y = z.y + 7;
+    x = z.x + z.w - (n == 10 ? 0 : 2);                   // (10's number is wider)
+    y = z.y - 2;
+    if (x > 122) { x = 122; y -= 2; }                    // the last box: kept on screen, clear of its 10
 }
 
 static void drawPuck(const Craps &g) {
@@ -577,7 +581,6 @@ void render(const Craps &g, uint32_t frame) {
             }
             if (paid[b] > 0) art::stackSmall(x + 6, y, paid[b], 3);
         }
-        drawPuck(g);
         if (holdW) gfx_hline(0, TRIM_Y, holdW, CYAN);
     }
     dbg::prof(1);
@@ -586,6 +589,7 @@ void render(const Craps &g, uint32_t frame) {
     if (bz != 0xFF && zones::inBar(g.opt.table, bz)) cursorBar = (int8_t)(zones::at(g.opt.table, bz).bet - Z_CHIP0);
     bool drewBar = bar::draw(denom, cursorBar, g.canRoll() == D_OK && step == S_IDLE, rollHeld, frame);
     if (drawWall || drawFelt || drewBar) {
+        drawPuck(g);                                     // over both bands: it straddles the rail
         for (auto &fl : flies) {
             if (!fl.T || fl.t < 0) continue;
             int x, y; flyPos(fl, x, y);
