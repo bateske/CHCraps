@@ -213,8 +213,11 @@ static void background() {
     uint8_t row[GFX_FB_STRIDE] __attribute__((aligned(4)));
     memset(row, NAVY | (NAVY << 4), sizeof row);
     for (int x = 3; x < 128; x += 8) row[x >> 1] = (uint8_t)((row[x >> 1] & 0x0F) | (INK << 4));
-    int sky = capY < 0 ? 0 : (capY > 128 ? 128 : capY);
-    for (int y = 0; y < sky; y++) gfx_copyRow(y, row, 0, GFX_W);
+    // The room down to the foot of the back wall, full width: beside the
+    // wall, above where the side rails start, nothing else paints (sparks
+    // and the shake would otherwise leave their pixels there).
+    int sky = capY < 0 ? 0 : (capY > 128 ? 128 : capY), room = botY < 0 ? 0 : (botY > 128 ? 128 : botY);
+    for (int y = 0; y < room; y++) gfx_copyRow(y, row, 0, GFX_W);
     gfx_dither(0, 0, 128, sky / 2, INK, 0);
     // The back rail and its rubber.
     gfx_fillRect(xl - 2, capY, xr - xl + 4, topY - capY, WOOD);
