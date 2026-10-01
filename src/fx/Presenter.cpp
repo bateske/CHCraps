@@ -486,12 +486,11 @@ static uint8_t lookAt(const Craps &g) {
 }
 
 void render(const Craps &g, uint32_t frame) {
-    // The cam (and the table sliding back in under it) leaves the whole
-    // screen to redraw, the frame after the slide included.
-    static bool sliding = false;
-    if (cam::render(frame)) { invalidate(); sliding = true; return; }
-    if (cam::tableIn() || sliding) invalidate();
-    sliding = cam::tableIn() != 0;
+    // After the cam the whole table is redrawn.
+    static bool wasCam = false;
+    if (cam::render(frame)) { invalidate(); wasCam = true; return; }
+    if (wasCam) invalidate();
+    wasCam = false;
 
     uint8_t expr = face;
     if (bubLen && bubChars < bubLen && ((frame >> 2) & 1)) expr = wall::E_TALK;
@@ -604,9 +603,8 @@ void render(const Craps &g, uint32_t frame) {
         fx::drawParticles();
         fx::drawFloats();
         fx::drawBanner();
-        fx::applyShake(0, TRIM_Y - 1);
+        fx::applyShake(0, TRIM_Y - 1, -1);
     }
-    cam::finishTable();
     dbg::prof(2);
 }
 

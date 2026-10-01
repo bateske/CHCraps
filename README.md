@@ -7,10 +7,10 @@ felt and gold lettering, and Blackjack's dealer working the table as the
 stickman. He calls every roll in his speech bubble ("YO-LEVEN! FRONT LINE
 WINNER", "THE POINT IS SIX! MARK IT", "SEVEN OUT! LINE AWAY").
 
-Hold A on ROLL to shake the dice and let go to throw. The view whips down
+Hold A on ROLL to shake the dice and let go to throw. The view fades down
 the table into the **dice cam**, where two real 3D dice fly to the back wall,
 bounce off its rubber pyramids in a burst of sparks, tumble back, and settle.
-The camera then cranes up over them for the result. Then it whips back to the
+The camera then cranes up over them for the result. Then it fades back to the
 layout, where the dealer sweeps the losers into his rack, stacks the payouts
 beside the winners, and sends your money home while the purse rolls up.
 
@@ -174,7 +174,7 @@ chip, the point). SAVE & QUIT, then CONTINUE, puts you back mid-hand.
     fewest pips.
   - The new pips go on as the dice hit the back wall, small, spinning and
     in a shower of sparks.
-- **Flash is the limit.** The release build is 50,136 B of 50,944, which
+- **Flash is the limit.** The release build is 50,012 B of 50,944, which
   leaves both save pages free. To fit:
   - the chips are span sprites recoloured by remap tables, and the pucks are
     span sprites too (round discs made by `tools/assets.py`);

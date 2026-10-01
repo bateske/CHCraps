@@ -206,14 +206,14 @@ static uint8_t shakeT, shakeAmp;
 
 void shake(uint8_t frames, uint8_t amp) { shakeT = frames; shakeAmp = amp; }
 
-void applyShake(int y0, int y1) {
+void applyShake(int y0, int y1, int fill) {
     if (!shakeT) return;
     int a = (shakeAmp * shakeT + 9) / 10;
     if (a < 1) a = 1;
     int dy = (shakeT & 1) ? a : -a;
     // 2 px sideways. gfx_scroll copies words from SRAM; memmove here is a
     // byte loop in flash (CHGfx measured 6.3 ms against 1.0 for 118 rows).
-    gfx_scroll(y0, y1 - y0 + 1, (shakeT & 2) ? 2 : -2, dy);
+    gfx_scroll(y0, y1 - y0 + 1, (shakeT & 2) ? 2 : -2, dy, fill);
 }
 
 bool activeRows(int &lo, int &hi) {

@@ -19,8 +19,9 @@ static int32_t holdX[2], holdY[2];
 static uint8_t power, pointNum, rollA, rollB, rest;
 static bool pending, isHot, showSum;
 
-static const uint8_t WHIP_T = 5, ZOOM_T = 10, OUT_T = 5, ENTER_T = 6;
-static const int8_t ENTER_OFF[ENTER_T] = {44, 26, 14, 7, 3, 1};
+// Into the cam and back out: a quick fade through black (the zoom-in eases on
+// while the cam fades up).
+static const uint8_t WHIP_T = 6, ZOOM_T = 12, OUT_T = 6, ENTER_T = 6;
 static const int32_t RUBBER_Y = 34 << 8, RAIL_TOP = 40 << 8, SIDE_H = 22 << 8, SIDE_W = 12 << 8;
 
 Phase phase() { return ph; }
@@ -28,7 +29,6 @@ bool active() { return ph != OFF; }
 uint16_t restT() { return ph == RESULT ? t : 0; }
 void hot(bool on) { isHot = on; }
 bool burning() { return isHot && ph != OFF && ph != ENTER && ph != WHIP_OUT; }
-int tableIn() { return ph == ENTER ? ENTER_OFF[t < ENTER_T ? t : ENTER_T - 1] : 0; }
 
 void begin(uint8_t point) {
     ph = WHIP_IN; t = 0; pointNum = point; pending = false; power = 0; showSum = false;
@@ -103,10 +103,15 @@ static int32_t iabs32(int32_t v) { return v < 0 ? -v : v; }
 void update() {
     switch (ph) {
         case OFF: case ENTER:
-            if (ph == ENTER && ++t >= ENTER_T) ph = OFF;
+            if (ph == ENTER) {
+                ++t;
+                pal::setFade((uint8_t)(t * 16 / ENTER_T));
+                if (t >= ENTER_T) ph = OFF;
+            }
             return;
         case WHIP_IN:
             t++;
+            pal::setFade((uint8_t)(t <= WHIP_T ? 16 - t * 16 / WHIP_T : ((t - WHIP_T) * 16 / 6 > 16 ? 16 : (t - WHIP_T) * 16 / 6)));
             if (t > WHIP_T) view.focal = (int16_t)(40 + (70 * fx::ease(fx::OUT_CUBIC, t - WHIP_T, ZOOM_T)) / 256);
             jiggle();
             if (t >= WHIP_T + ZOOM_T) {
@@ -171,7 +176,9 @@ void update() {
             return;
         }
         case WHIP_OUT:
-            if (++t >= OUT_T) { ph = ENTER; t = 0; }
+            ++t;
+            pal::setFade((uint8_t)(16 - t * 16 / OUT_T));
+            if (t >= OUT_T) { ph = ENTER; t = 0; pal::setFade(0); }
             return;
     }
 }
@@ -179,14 +186,6 @@ void update() {
 // ---------------------------------------------------------------------------
 // Drawing
 // ---------------------------------------------------------------------------
-static void streaks(int y0, int y1) {
-    static const uint8_t C[4] = {WHITE, SILVER, FELT_LT, CYAN};
-    for (int i = 0; i < 6; i++) {
-        int y = fx::rndRange(y0, y1);
-        int x = fx::rndRange(-20, 110), w = fx::rndRange(10, 48);
-        gfx_hline(x, y, w, C[fx::rnd() & 3]);
-    }
-}
 
 static int16_t qx(int32_t x, int32_t y, int32_t z) { int16_t sx, sy; d3::project(view, x, y, z, sx, sy); return sx; }
 static int16_t qy(int32_t x, int32_t y, int32_t z) { int16_t sx, sy; d3::project(view, x, y, z, sx, sy); return sy; }
@@ -195,6 +194,15 @@ static int px(int16_t q) { return (q + 8) >> 4; }
 // The far end: the casino's wall, the rail along the back and its rubber
 // pyramids (diamonds, lit from the top left), then the felt and the side
 // rails running toward the camera.
+// Stretch an edge's near end along its line until it is below the screen.
+static void reach(int16_t fx, int16_t fy, int16_t &nx, int16_t &ny) {
+    const int32_t BOTTOM = 136 << 4;
+    if (ny >= BOTTOM || ny <= fy) return;
+    int32_t x = fx + (int32_t)(nx - fx) * (BOTTOM - fy) / (ny - fy);
+    nx = (int16_t)(x > 4000 ? 4000 : x < -4000 ? -4000 : x);
+    ny = (int16_t)BOTTOM;
+}
+
 static void background() {
     const int32_t W = d3::WALL_Z, S = d3::SIDE_X;
     int32_t N = view.camZ + (28 << 8);                      // nothing behind the lens
@@ -248,13 +256,19 @@ static void background() {
         gfx_hline(px(qx(-S, 0, z)), px(qy(0, 0, z)), px(qx(S, 0, z)) - px(qx(-S, 0, z)), FELT_LT);
     }
     // Side rails: the padded inner face, its gold top edge, the dark beyond.
+    // Looking down from far off, the rails' near ends can project above the
+    // bottom of the screen: each edge runs on down its own line past it.
     for (int side = -1; side <= 1; side += 2) {
         int32_t x = side * S, xo = side * (S + SIDE_W);
         int16_t face[8] = {qx(x, 0, W), qy(x, 0, W), qx(x, 0, N), qy(x, 0, N),
                            qx(x, SIDE_H, N), qy(x, SIDE_H, N), qx(x, SIDE_H, W), qy(x, SIDE_H, W)};
+        int16_t outerN[2] = {qx(xo, SIDE_H, N), qy(xo, SIDE_H, N)};
+        reach(face[0], face[1], face[2], face[3]);
+        reach(face[6], face[7], face[4], face[5]);
+        reach(qx(xo, SIDE_H, W), qy(xo, SIDE_H, W), outerN[0], outerN[1]);
         fillConvex(face, 4, WOOD);
         fillConvex(face, 4, WINE, 1);
-        int16_t top[8] = {face[6], face[7], face[4], face[5], qx(xo, SIDE_H, N), qy(xo, SIDE_H, N),
+        int16_t top[8] = {face[6], face[7], face[4], face[5], outerN[0], outerN[1],
                           qx(xo, SIDE_H, W), qy(xo, SIDE_H, W)};
         fillConvex(top, 4, WOOD);
         int16_t out[8] = {top[6], top[7], top[4], top[5], (int16_t)(side * 4000), top[5], (int16_t)(side * 4000), top[7]};
@@ -305,16 +319,8 @@ bool render(uint32_t frame) {
     switch (ph) {
         case OFF: case ENTER: return false;
         case WHIP_IN:
-            if (t < WHIP_T) {                                   // the table whips up out of view
-                gfx_scroll(0, 128, 0, -(6 + t * 8), NAVY);
-                streaks(0, 128);
-                return true;
-            }
+            if (t <= WHIP_T) return true;                       // the table fades out as it was
             break;
-        case WHIP_OUT:
-            gfx_scroll(0, 128, 0, 8 + t * 10, NAVY);
-            streaks(0, 128);
-            return true;
         default: break;
     }
     background();
@@ -333,15 +339,10 @@ bool render(uint32_t frame) {
     plate();
     if (ph == SHAKE || ph == WHIP_IN) powerBar(frame);
     if (ph == RESULT && showSum && t > 6) sumPlate();
-    fx::applyShake(0, 127);
+    fx::applyShake(0, 127);                             // uncovered edges black, not smeared
     return true;
 }
 
-void finishTable() {
-    int off = tableIn();
-    if (!off) return;
-    gfx_scroll(0, 128, 0, off, NAVY);
-    streaks(0, off);
-}
+
 
 }  // namespace cam

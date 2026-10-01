@@ -6,6 +6,8 @@
 
 namespace fx {
 
+const int INK_FILL = 0;               // palette index INK
+
 enum Ease : uint8_t { LINEAR, OUT_CUBIC, OUT_BACK, IN_OUT, OUT_BOUNCE };
 // t in 0..n -> 0..256 (OUT_BACK/OUT_BOUNCE may overshoot).
 int ease(Ease e, int t, int n);
@@ -39,6 +41,8 @@ void update();                      // once per frame
 void drawParticles();
 void drawBanner();
 void drawFloats();
-void applyShake(int y0, int y1);    // post-process rows y0..y1 of the framebuffer
+// Post-process rows y0..y1 of the framebuffer; the edges the move uncovers
+// are painted fill (or keep their stale pixels, < 0: a smear).
+void applyShake(int y0, int y1, int fill = INK_FILL);
 
 }  // namespace fx
