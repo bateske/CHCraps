@@ -66,10 +66,10 @@ void puck(int cx, int cy, bool on, uint8_t number) {
     }
     gfx_sprite4(PUCK_ON, cx - 5, cy - 5);
     if (!number) { text35(cx - 3, cy - 2, "ON", INK); return; }
-    // The point in the 5x7 font, its five-pixel digits centred; "10" is too
-    // wide for the badge in it, so it takes the 3x5 font (7 px, centred too).
-    if (number >= 10) text35(cx - 3, cy - 2, "10", INK);
-    else gfx_char(cx - 2, cy - 3, (char)('0' + number), INK);
+    // The point in the 3x5 font, centred (odd widths in an odd disc): small
+    // print, so the badge reads apart from the layout's own numbers.
+    char s[3] = {(char)(number >= 10 ? '1' : '0' + number), (char)(number >= 10 ? '0' : 0), 0};
+    text35(cx - text35Width(s) / 2, cy - 2, s, INK);
 }
 
 static const uint16_t PIPS[7] = {0, 0x010, 0x101, 0x111, 0x145, 0x155, 0x16D};
