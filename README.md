@@ -174,7 +174,7 @@ chip, the point). SAVE & QUIT, then CONTINUE, puts you back mid-hand.
     fewest pips.
   - The new pips go on as the dice hit the back wall, small, spinning and
     in a shower of sparks.
-- **Flash is the limit.** The release build is 50,072 B of 50,944, which
+- **Flash is the limit.** The release build is 50,100 B of 50,944, which
   leaves both save pages free. To fit:
   - the chips are span sprites recoloured by remap tables, and the pucks are
     span sprites too (round discs made by `tools/assets.py`);

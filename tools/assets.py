@@ -421,6 +421,13 @@ def main():
         o.array(f.upper(), pack_span4(img), comment=f"{f} {len(img[0])}x{len(img)}, row spans")
         preview(f, img, bg=3)
 
+    # The field's printing, one row: (2) 3 4 9 10 11 FIELD (12), the 2 and 12
+    # ringed in gold (they pay more). Drawn by bateske (tools/art/field.png,
+    # felt transparent so it suits every felt colour).
+    field = load_png(ART / "field.png")
+    o.array("FIELD_PRINT", pack_span4(field), comment=f"field printing {len(field[0])}x{len(field)}, row spans")
+    preview("field", field, bg=3)
+
     # The pucks: round, with a drop shadow. ON is a white badge for the point
     # number (11 px: a 5x7 digit fits); OFF is black and a size up, to fit
     # "OFF" in the 3x5 font.

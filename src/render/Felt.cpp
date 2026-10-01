@@ -7,6 +7,7 @@
 #include "../game/Craps.h"
 #include "../gfx/Draw.h"
 #include "../gfx/Palette.h"
+#include "../assets/Assets.h"
 
 namespace felt {
 
@@ -36,26 +37,11 @@ static void spot(const Craps &g, const Zone &z, bool beginner) {
         case COME:
             centred57(x + 36, y + 1, "COME", WHITE);
             break;
-        case FIELD: {
-            // 2 3 4 9 10 11 12 across the top, the 2 and 12 circled (they pay more).
-            int ny = beginner ? y + 2 : y + 2, nx = beginner ? x + 40 : x + 4;
-            static const char *const F[7] = {"2", "3", "4", "9", "10", "11", "12"};
-            int gap = beginner ? 5 : 4;
-            for (uint8_t k = 0; k < 7; k++) {
-                int tw = text35Width(F[k]);
-                bool pays = k == 0 || k == 6;
-                if (pays) roundRect(nx - 2, ny - 2, tw + 4, 9, 3, GOLD);
-                text35(nx, ny, F[k], pays ? GOLD : WHITE);
-                nx += tw + gap + (k == 0 || k == 5 ? 2 : 0);
-            }
-            if (beginner) {
-                gfx_text(x + 4, y + 4, "FIELD", GOLD);
-                text35(x + 40, y + 8, "2 PAYS 2X 12 3X", FELT_LT);
-            } else {
-                text35(x + 4, y + 8, "FIELD", GOLD);
-            }
+        case FIELD:
+            // One row: (2) 3 4 9 10 11 FIELD (12), the 2 and 12 ringed in gold
+            // (they pay more); chips sit under the white numbers.
+            gfx_sprite4(FIELD_PRINT, beginner ? x + 20 : x + 1, beginner ? y + 1 : y + 1);
             break;
-        }
         case DONT:
             text35(x + 3, y + (beginner ? 3 : 2), "DONT PASS BAR", WHITE);
             if (beginner) pair(x + 57, y + 3, 6, 6);

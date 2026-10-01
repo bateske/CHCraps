@@ -11,6 +11,7 @@ extern const uint8_t CHIP_TOP[35];
 extern const uint8_t CHIP_SIDE[28];
 extern const uint8_t CHIP_SMALL_TOP[31];
 extern const uint8_t CHIP_SMALL_SIDE[13];
+extern const uint8_t FIELD_PRINT[259];
 extern const uint8_t PUCK_ON[60];
 extern const uint8_t PUCK_OFF[71];
 extern const uint8_t LOGO[220];
