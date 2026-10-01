@@ -91,10 +91,10 @@ void board(const Craps &g, uint8_t skip) {
     int x = BOARD_X, y = BOARD_Y;
     panel(x, y, BOARD_W, BOARD_H, 3, INK, GOLD);
     if (!g.hist[skip]) {                                 // a new table: two dice, waiting
-        roundRect(x + 3, y + 3, 7, 7, 1, NAVY);
+        roundRect(x + 4, y + 3, 7, 7, 1, NAVY);
         roundRect(x + 12, y + 3, 7, 7, 1, NAVY);
-        text35(x + BOARD_W / 2 - 7, y + 15, "NEW", FELT_LT);
-        text35(x + BOARD_W / 2 - 9, y + 22, "DICE", FELT_LT);
+        text35(x + BOARD_W / 2 - text35Width("NEW") / 2, y + 15, "NEW", FELT_LT);
+        text35(x + BOARD_W / 2 - text35Width("DICE") / 2, y + 22, "DICE", FELT_LT);
         return;
     }
     for (uint8_t i = 0; i < 4 && i + skip < 6; i++) {
@@ -102,7 +102,7 @@ void board(const Craps &g, uint8_t skip) {
         if (!h) break;
         uint8_t a = h >> 4, b = h & 15;
         if (i == 0) {
-            art::dieFace(x + 3, y + 3, 7, a);
+            art::dieFace(x + 4, y + 3, 7, a);
             art::dieFace(x + 12, y + 3, 7, b);
             continue;
         }
