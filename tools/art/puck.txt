@@ -1,0 +1,12 @@
+# The puck: w face (white ON, ink OFF), n edge band (silver ON, navy OFF).
+....sssss....
+..sswwwwwss..
+.swwwwwwwwws.
+swwwwwwwwwwws
+swwwwwwwwwwws
+swwwwwwwwwwws
+kswwwwwwwwwsk
+kksswwwwwsskk
+.nnnsssssnnn.
+..kkkkkkkkk..
+....kkkkk....
