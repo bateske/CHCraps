@@ -55,7 +55,7 @@ static void spot(const Craps &g, const Zone &z, bool beginner) {
             }
             if (beginner) {
                 gfx_text(x + 4, y + 4, "FIELD", GOLD);
-                text35(x + 40, y + 8, "2 PAYS 2X 12 PAYS 3X", FELT_LT);
+                text35(x + 40, y + 8, "2 PAYS 2X 12 3X", FELT_LT);
             } else {
                 text35(x + 4, y + 8, "FIELD", GOLD);
             }

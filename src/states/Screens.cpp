@@ -737,6 +737,43 @@ bool debugCommand(char cmd, const char *args) {
             present::cursor(z);
             return true;
         }
+#ifdef CHSIM
+        case 'Z': {
+            // Z <zone>: the D-pad presses (U D L R) that take the cursor
+            // there, as moveCursor() would (UP from the rack goes back to the
+            // last spot on the felt): the fewest, by a search over (spot,
+            // last felt spot).
+            uint8_t tb = game.opt.table, n = zones::count(tb), to = (uint8_t)dbg::parseNum(args, 10);
+            static const int8_t DX[4] = {0, 0, -1, 1}, DY[4] = {-1, 1, 0, 0};
+            static uint16_t from[32 * 32];
+            static uint8_t how[32 * 32];
+            uint16_t q[32 * 32], qh = 0, qt = 0, start = (uint16_t)(zoneSel * 32 + lastFelt), end = 0xFFFF;
+            memset(from, 0xFF, sizeof from);
+            from[start] = start; q[qt++] = start;
+            while (qh < qt) {
+                uint16_t st = q[qh++];
+                uint8_t z = (uint8_t)(st / 32), lf = (uint8_t)(st % 32);
+                if (z == to) { end = st; break; }
+                for (uint8_t d = 0; d < 4; d++) {
+                    uint8_t t2 = (DY[d] < 0 && zones::inBar(tb, z) && lf < n && zones::usable(game, lf))
+                                     ? lf : zones::nearest(game, z, DX[d], DY[d]);
+                    if (t2 == 0xFF || t2 == z) continue;
+                    uint16_t ns = (uint16_t)(t2 * 32 + (zones::inBar(tb, t2) ? lf : t2));
+                    if (from[ns] != 0xFFFF) continue;
+                    from[ns] = st; how[ns] = d; q[qt++] = ns;
+                }
+            }
+            char path[64];
+            uint8_t k = 0;
+            if (end == 0xFFFF) path[k++] = '?';
+            else for (uint16_t st = end; st != start && k < 60; st = from[st]) path[k++] = "UDLR"[how[st]];
+            p = fmtStr(buf, "ROUTE ");
+            while (k) *p++ = path[--k];
+            fmtStr(p, "\n");
+            dbg::print(buf);
+            return true;
+        }
+#endif
         case 'H': {
             p = fmtStr(buf, "STATE ");
             p = fmtInt(p, game.purse); *p++ = ' ';

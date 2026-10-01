@@ -13,6 +13,8 @@ Script lines (# comments allowed):
     free SECONDS        run free (real time) for a while, then lockstep again
     freegif NAME SECONDS EVERY   the same, sampled into a GIF
     rec start [EVERY] / rec stop NAME   record everything in between to NAME.gif
+    goto ZONE [GAP]     (simulator) walk the cursor to spot ZONE with D-pad taps
+    idle [W]            run until the dice cam and the payout are over, then W frames
     tap BTN[+BTN] [H]   hold for H frames (default 3), then release, then 1 frame
     hold BTN[+BTN]      keep held until `release`
     release
@@ -246,6 +248,29 @@ class Driver:
                 self.cmd("L0")
                 time.sleep(float(args[0]))
                 self.cmd("L1")
+            elif op == "idle":
+                # idle [W]: run until the dice cam and the payout show are
+                # over (the game's H state), then W frames more.
+                for _ in range(2000):
+                    st = self.query("H", "STATE").split("|")[0].split()
+                    if st[5] == "0" and st[6] == "0":
+                        break
+                    self.frames(4)
+                self.frames(int(args[0]) if args else 0)
+            elif op == "goto":
+                # goto ZONE [GAP]: walk the cursor to spot ZONE (an index in
+                # src/render/Zones.cpp's table) with D-pad taps, GAP frames
+                # apart (default 8); the game plans the route (simulator).
+                route = self.query(f"Z {args[0]}", "ROUTE").split()[1:]
+                steps = route[0] if route else ""
+                if "?" in steps:
+                    raise SystemExit(f"no route to {args[0]}")
+                gap = int(args[1]) if len(args) > 1 else 8
+                for ch in steps:
+                    self.buttons(mask_of({"U": "UP", "D": "DOWN", "L": "LEFT", "R": "RIGHT"}[ch]))
+                    self.frames(3)
+                    self.buttons(0)
+                    self.frames(gap)
             elif op == "rec":
                 # rec start [EVERY]: record from here (every EVERY-th frame, 3);
                 # rec stop NAME: write NAME.gif.

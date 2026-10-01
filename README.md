@@ -14,16 +14,42 @@ The camera then cranes up over them for the result. Then it whips back to the
 layout, where the dealer sweeps the losers into his rack, stacks the payouts
 beside the winners, and sends your money home while the purse rolls up.
 
-| A roll: a hard 4 makes the point | A hot hand: the dice burn |
-|---|---|
-| ![roll](docs/roll.gif) | ![hot](docs/hot.gif) |
-| **Seven out: line away** | **Title** |
-| ![sevenout](docs/sevenout.gif) | ![title](docs/title.gif) |
+A minute at the table from the title screen, played with the buttons alone
+(`tools/scripts/gameplay.txt`; only the dice are scripted, so the tour hits
+the good parts):
+1. $10 on the pass line and $5 on the field.
+2. A yo-leven on the come-out.
+3. Point six, with $50 odds behind the line.
+4. The 8 placed for $12 (two $1 chips picked from the rack) and a dollar on
+   the hard 8.
+5. Hard eight pays.
+6. Winner six pays the line and the odds.
+7. A Come bet travels to the 8 and takes odds.
+8. The seven-out sweeps the layout.
+
+![gameplay](docs/gameplay.gif)
+
+| Betting up close | A roll: a hard 4 makes the point | A hot hand: the dice burn |
+|---|---|---|
+| ![betting](docs/betting.gif) | ![roll](docs/roll.gif) | ![hot](docs/hot.gif) |
+| **Seven out: line away** | **The Beginner table** | **Title** |
+| ![sevenout](docs/sevenout.gif) | ![beginner](docs/beginner.gif) | ![title](docs/title.gif) |
+
+In *Betting up close*:
+- the plaque names each spot under the cursor and what it pays;
+- the stickman explains a refused bet;
+- chips go down with A and come back with B (hold B to take the whole bet
+  down);
+- the rack's chips are picked with A.
+
+The *Beginner table* hand: the pass line and field, the point 8, the 6
+placed for $12, $20 odds, a hard six, then winner eight.
 
 ![the table](docs/table.png)
 
 (Captured from the PC simulator in `tools/chsim`, which runs the real game
-and graphics code and renders what the device shows.)
+and graphics code and renders what the device shows. Each GIF is made by
+the script of the same name in `tools/scripts`, or by `showcase.txt`.)
 
 ## Installing
 
@@ -146,7 +172,7 @@ chip, the point). SAVE & QUIT, then CONTINUE, puts you back mid-hand.
     fewest pips.
   - The new pips go on as the dice hit the back wall, small, spinning and
     in a shower of sparks.
-- **Flash is the limit.** The release build is 50,020 B of 50,944, which
+- **Flash is the limit.** The release build is 50,012 B of 50,944, which
   leaves both save pages free. To fit:
   - the chips and the puck are span sprites recoloured by remap tables;
   - every die orientation comes from one walk of quarter turns stored in a
@@ -166,7 +192,7 @@ a C++ compiler for the simulator and tests (zig, clang++ or g++ on the PATH,
 
     python tools/tests/run_tests.py          # rules, dice physics, layout reachability
     python tools/tests/sim_save.py           # save mid-hand, power-cycle, continue
-    python tools/chsim/chdrive.py --sim . tools/scripts/showcase.txt docs/
+    python tools/chsim/chdrive.py --sim . tools/scripts/gameplay.txt docs/   # also betting, beginner, showcase
     python tools/assets.py                   # dealer, logo, chips -> src/assets/
     python tools/audio/preview.py out/audio  # every sound effect to WAV
     python tools/device.py build|upload [--debug]
@@ -180,7 +206,13 @@ The debug build (`--debug`) speaks the serial protocol in
 - move the cursor;
 - dump the table state.
 
-Scripts in `tools/scripts` drive it in the simulator or on the board.
+Scripts in `tools/scripts` drive it in the simulator or on the board. In
+the simulator:
+- `goto ZONE` walks the cursor to a spot with real D-pad presses, using the
+  route the game plans;
+- `idle` waits for the dice cam and the payout to finish.
+
+So a script reads like a player at the table.
 
 ## Files
 
